@@ -18,6 +18,9 @@ class Settings(BaseSettings):
     environment: str = "development"
     secret_key: str = "changeme"
 
+    # Supabase JWT secret — Settings → API → JWT Secret in the dashboard
+    jwt_secret: str = ""
+
     # CORS — comma-separated list of allowed origins
     allowed_origins: str = "http://localhost:5173"
 
