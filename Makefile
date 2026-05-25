@@ -5,9 +5,10 @@ install:
 	cd backend && uv sync --all-extras
 	cd frontend && npm ci
 
-# Start backend + frontend concurrently
+# Start backend + frontend concurrently, then open in browser
 dev:
 	@command -v concurrently >/dev/null 2>&1 || npm install -g concurrently
+	@sleep 2 && open http://localhost:5173 &
 	concurrently \
 		--names "backend,frontend" \
 		--prefix-colors "blue,green" \
