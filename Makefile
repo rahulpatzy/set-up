@@ -4,10 +4,11 @@
 pull:
 	git pull origin $(shell git branch --show-current)
 
-# Install all dependencies
+# Install all dependencies + pre-commit hooks
 install:
 	cd backend && uv sync --all-extras
 	cd frontend && npm ci
+	cd backend && uv run pre-commit install
 
 # Start backend + frontend concurrently, then open in browser
 dev:
