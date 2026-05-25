@@ -219,3 +219,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Generated API client (run: make generate-client)
+frontend/src/api/generated/
