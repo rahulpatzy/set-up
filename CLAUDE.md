@@ -69,22 +69,11 @@ Copy `.env.example` to `.env` and fill in values. Never commit `.env`.
 ## Branch Strategy
 
 ```
-feature/xxx  →  PR  →  main  (auto-deploys to QA)
-                              ↓ manual trigger
-                           production
+feature/xxx  →  PR  →  main
 ```
 
 - PRs to `main` trigger CI (lint, test, audit)
-- Merging to `main` auto-deploys to **QA** environment
-- Promoting to **production** is a manual `workflow_dispatch` trigger in GitHub Actions
-
-## Deploying
-
-Workflows are in `.github/workflows/`. Replace the placeholder `echo` deploy steps with your actual deploy commands (Railway, Fly.io, Vercel, AWS, etc.).
-
-Set up GitHub Environments in **Repo Settings → Environments**:
-- `qa` — auto-deploy target
-- `production` — add a required reviewer for approval gate
+- Run locally with `make dev`
 
 ## Adding Features
 
