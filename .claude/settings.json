@@ -1,6 +1,7 @@
   {
     "enabledMcpjsonServers": ["supabase"],
     "permissions": {
-      "allow": ["Bash(uv:*)", "Bash(npm:*)", "Bash(npx:*)", "Bash(make:*)", "Bash(pytest:*)", "Bash(ruff:*)", "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)"]
+      "allow": ["Bash(uv:*)", "Bash(npm:*)", "Bash(npx:*)", "Bash(make:*)", "Bash(pytest:*)", "Bash(ruff:*)", "Bash(git status:*)", "Bash(git diff:*)",
+      "Bash(git log:*)", "Bash(git commit:*)", "MCP(supabase:*)"]
     }
   } 
