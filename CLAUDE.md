@@ -35,6 +35,7 @@ feature/xxx  →  PR  →  develop  (CI must pass = QA gate)
 ```
 
 - **Always create a new branch per feature/fix** — never commit directly to `develop` or `main`
+- **Claude must create a new branch before making any code or config changes**, even small ones — no exceptions
 - Branch naming: `feat/`, `fix/`, `docs/`, `chore/`
 - Workflow: `git checkout main && make pull` → `git checkout -b feat/my-thing` → make changes → PR → merge
 
@@ -55,10 +56,13 @@ make dev          # start both servers + open browser
 | Command | What it does |
 |---|---|
 | `make dev` | Start both servers + open browser |
+| `make docker-dev` | Start full stack via Docker Compose |
 | `make test` | Run pytest |
+| `make test-frontend` | Run Vitest frontend tests |
 | `make lint` | Ruff check + ESLint |
 | `make format` | Auto-fix with ruff |
-| `make install` | `uv sync` + `npm ci` |
+| `make install` | `uv sync` + `npm ci` + pre-commit install |
+| `make generate-client` | Regenerate typed API client from OpenAPI spec |
 | `make pull` | Pull latest for current branch |
 | `make env-dev` | Switch to `.env.development` |
 | `make env-qa` | Switch to `.env.qa` |
@@ -94,7 +98,7 @@ Key variables:
 ```bash
 cd backend
 uv sync --all-extras                              # install deps
-uv run uvicorn app.main:app --reload --port 8000  # dev server
+uv run uvicorn app.main:app --reload --port 8000 --app-dir src  # dev server
 uv run pytest -v                                  # tests
 uv run ruff check . && uv run ruff format --check . # lint
 uv add package-name                               # add dep

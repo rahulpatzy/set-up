@@ -1,13 +1,14 @@
-.PHONY: install dev test lint format clean env-dev env-qa env-prod pull
+.PHONY: install dev docker-dev test test-frontend generate-client lint format clean env-dev env-qa env-prod pull
 
 # Pull latest for current branch
 pull:
 	git pull origin $(shell git branch --show-current)
 
-# Install all dependencies
+# Install all dependencies + pre-commit hooks
 install:
 	cd backend && uv sync --all-extras
 	cd frontend && npm ci
+	cd backend && uv run pre-commit install
 
 # Start backend + frontend concurrently, then open in browser
 dev:
@@ -16,12 +17,24 @@ dev:
 	concurrently \
 		--names "backend,frontend" \
 		--prefix-colors "blue,green" \
-		"cd backend && uv run uvicorn app.main:app --reload --port 8000" \
+		"cd backend && uv run uvicorn app.main:app --reload --port 8000 --app-dir src" \
 		"cd frontend && npm run dev"
+
+# Start full stack with Docker Compose
+docker-dev:
+	docker compose up --build
 
 # Run backend tests
 test:
 	cd backend && uv run pytest -v
+
+# Run frontend tests
+test-frontend:
+	cd frontend && npm test
+
+# Generate typed API client from FastAPI's OpenAPI spec (requires backend running on :8000)
+generate-client:
+	cd frontend && npm run generate-client
 
 # Lint backend (ruff check + format check)
 lint:
