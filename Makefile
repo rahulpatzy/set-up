@@ -1,13 +1,26 @@
-.PHONY: install dev test lint format clean
+.PHONY: install dev test lint format clean env-dev env-qa env-prod pull sync
+
+# Pull latest for current branch
+pull:
+	git pull origin $(shell git branch --show-current)
+
+# Pull latest main and rebase current branch on top of it
+sync:
+	@echo "→ Fetching latest main..."
+	git fetch origin main
+	@echo "→ Rebasing onto main..."
+	git rebase origin/main
+	@echo "✅ Up to date with main"
 
 # Install all dependencies
 install:
 	cd backend && uv sync --all-extras
 	cd frontend && npm ci
 
-# Start backend + frontend concurrently
+# Start backend + frontend concurrently, then open in browser
 dev:
 	@command -v concurrently >/dev/null 2>&1 || npm install -g concurrently
+	@sleep 2 && open http://localhost:5173 &
 	concurrently \
 		--names "backend,frontend" \
 		--prefix-colors "blue,green" \
@@ -33,6 +46,16 @@ format:
 audit:
 	cd backend && uv run pip-audit
 	cd frontend && npm audit --audit-level=high
+
+# Switch environment (copies .env.<name> → .env)
+env-dev:
+	cp .env.development .env && echo "✅ Switched to development"
+
+env-qa:
+	cp .env.qa .env && echo "✅ Switched to QA"
+
+env-prod:
+	cp .env.production .env && echo "✅ Switched to production"
 
 # Remove generated files
 clean:

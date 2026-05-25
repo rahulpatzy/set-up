@@ -9,25 +9,84 @@ Click **"Use this template"** on GitHub to create a new repo from this starter, 
 ```bash
 git clone https://github.com/YOUR_ORG/YOUR_REPO
 cd YOUR_REPO
-cp .env.example .env          # fill in your values
-make install                  # install backend + frontend deps
-make dev                      # start both dev servers
+make install          # install backend + frontend deps
+make env-dev          # activate development environment
+make dev              # start both dev servers
 ```
 
 - Backend API: http://localhost:8000
 - Frontend: http://localhost:5173
 - Swagger docs: http://localhost:8000/docs
 
+## Environment Setup
+
+Create a config file for each environment (all git-ignored):
+
+```bash
+cp .env.example .env.development   # local dev
+cp .env.example .env.qa            # QA
+cp .env.example .env.production    # production
+```
+
+Fill in the values in each file, then generate a secure secret key for QA/prod:
+
+```bash
+openssl rand -hex 32
+```
+
+### Switching Environments
+
+| Command | Activates |
+|---|---|
+| `make env-dev` | `.env.development` → `.env` |
+| `make env-qa` | `.env.qa` → `.env` |
+| `make env-prod` | `.env.production` → `.env` |
+
+The active environment is always `.env` — the app reads from there.
+
+## Daily Workflow
+
+**Start of day — sync with latest main:**
+```bash
+git checkout main
+make pull                        # pull latest main
+git checkout your-feature-branch
+make sync                        # rebase your branch onto main
+make env-dev                     # make sure dev env is active
+make dev                         # start coding
+```
+
+**During development:**
+```bash
+make format                      # auto-fix formatting
+make lint                        # check for errors
+make test                        # run tests
+git add . && git commit -m "..."
+git push origin your-feature-branch
+```
+
+**Starting a new feature:**
+```bash
+git checkout main && make pull
+git checkout -b feature/your-feature-name
+make dev
+```
+
 ## Commands
 
 | Command | Description |
 |---|---|
 | `make install` | Install all dependencies |
-| `make dev` | Start backend + frontend |
+| `make dev` | Start backend + frontend (opens browser) |
+| `make pull` | Pull latest for current branch |
+| `make sync` | Rebase current branch onto latest main |
 | `make test` | Run tests |
 | `make lint` | Check code style |
 | `make format` | Auto-fix formatting |
 | `make audit` | Check for vulnerable deps |
+| `make env-dev` | Switch to development env |
+| `make env-qa` | Switch to QA env |
+| `make env-prod` | Switch to production env |
 
 ## Project Structure
 
@@ -36,6 +95,7 @@ backend/         FastAPI app (Python, uv)
   src/app/       Application source
   tests/         pytest tests
   pyproject.toml UV/Python config
+  uv.lock        Locked dependencies
 
 frontend/        React app (Vite + TypeScript + Tailwind)
   src/           Application source
@@ -43,37 +103,19 @@ frontend/        React app (Vite + TypeScript + Tailwind)
 
 .github/
   workflows/
-    ci.yml           Lint + test + audit (runs on every PR)
-    deploy-qa.yml    Auto-deploy to QA on merge to main
-    deploy-prod.yml  Manual deploy to production
+    ci.yml       Lint + test + audit (runs on every PR)
 ```
 
-## CI/CD Setup
-
-### 1. GitHub Environments
-
-Go to **Repo Settings → Environments** and create:
-- `qa` — auto-deploy target (no approval needed)
-- `production` — add a **Required reviewer** for the approval gate
-
-### 2. Deploy Secrets
-
-Add secrets to each environment (Settings → Environments → {env} → Secrets):
-- `DEPLOY_TOKEN` — your deploy service token (Railway, Fly.io, Vercel, etc.)
-
-### 3. Fill in Deploy Commands
-
-Edit the `TODO` placeholders in:
-- `.github/workflows/deploy-qa.yml`
-- `.github/workflows/deploy-prod.yml`
-
-### Workflow
+## Branch & Gate Strategy
 
 ```
-feature/xyz → PR → CI runs (lint, test, audit)
-                 → merge to main → auto-deploys to QA
-                                 → manual trigger → production
+feature/xxx  →  PR  →  develop  (CI must pass)
+                            ↓ PR
+                          main   (CI must pass + 1 approval)
 ```
+
+- **`develop`** — QA gate: CI (lint, test, audit) must pass to merge
+- **`main`** — Prod gate: CI must pass to merge
 
 ## Tech Stack
 
