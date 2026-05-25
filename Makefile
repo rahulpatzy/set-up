@@ -1,4 +1,4 @@
-.PHONY: install dev test test-frontend lint format clean env-dev env-qa env-prod pull
+.PHONY: install dev test test-frontend generate-client lint format clean env-dev env-qa env-prod pull
 
 # Pull latest for current branch
 pull:
@@ -27,6 +27,10 @@ test:
 # Run frontend tests
 test-frontend:
 	cd frontend && npm test
+
+# Generate typed API client from FastAPI's OpenAPI spec (requires backend running on :8000)
+generate-client:
+	cd frontend && npm run generate-client
 
 # Lint backend (ruff check + format check)
 lint:
