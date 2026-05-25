@@ -1,0 +1,5 @@
+# Code owners are automatically requested for review on PRs
+# that modify files they own.
+
+# Global owner — applies to everything
+* @rahulpatzy
