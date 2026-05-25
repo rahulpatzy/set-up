@@ -1,16 +1,4 @@
-.PHONY: install dev test lint format clean env-dev env-qa env-prod pull sync
-
-# Pull latest for current branch
-pull:
-	git pull origin $(shell git branch --show-current)
-
-# Pull latest main and rebase current branch on top of it
-sync:
-	@echo "→ Fetching latest main..."
-	git fetch origin main
-	@echo "→ Rebasing onto main..."
-	git rebase origin/main
-	@echo "✅ Up to date with main"
+.PHONY: install dev test lint format clean env-dev env-qa env-prod
 
 # Install all dependencies
 install:

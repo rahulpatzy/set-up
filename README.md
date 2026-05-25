@@ -44,34 +44,6 @@ openssl rand -hex 32
 
 The active environment is always `.env` — the app reads from there.
 
-## Daily Workflow
-
-**Start of day — sync with latest main:**
-```bash
-git checkout main
-make pull                        # pull latest main
-git checkout your-feature-branch
-make sync                        # rebase your branch onto main
-make env-dev                     # make sure dev env is active
-make dev                         # start coding
-```
-
-**During development:**
-```bash
-make format                      # auto-fix formatting
-make lint                        # check for errors
-make test                        # run tests
-git add . && git commit -m "..."
-git push origin your-feature-branch
-```
-
-**Starting a new feature:**
-```bash
-git checkout main && make pull
-git checkout -b feature/your-feature-name
-make dev
-```
-
 ## Commands
 
 | Command | Description |
@@ -115,7 +87,7 @@ feature/xxx  →  PR  →  develop  (CI must pass)
 ```
 
 - **`develop`** — QA gate: CI (lint, test, audit) must pass to merge
-- **`main`** — Prod gate: CI must pass to merge
+- **`main`** — Prod gate: CI must pass + code owner approval required
 
 ## Tech Stack
 
