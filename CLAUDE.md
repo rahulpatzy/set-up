@@ -35,6 +35,7 @@ feature/xxx  →  PR  →  develop  (CI must pass = QA gate)
 ```
 
 - **Always create a new branch per feature/fix** — never commit directly to `develop` or `main`
+- **Claude must create a new branch before making any code or config changes**, even small ones — no exceptions
 - Branch naming: `feat/`, `fix/`, `docs/`, `chore/`
 - Workflow: `git checkout main && make pull` → `git checkout -b feat/my-thing` → make changes → PR → merge
 
@@ -94,7 +95,7 @@ Key variables:
 ```bash
 cd backend
 uv sync --all-extras                              # install deps
-uv run uvicorn app.main:app --reload --port 8000  # dev server
+uv run uvicorn app.main:app --reload --port 8000 --app-dir src  # dev server
 uv run pytest -v                                  # tests
 uv run ruff check . && uv run ruff format --check . # lint
 uv add package-name                               # add dep

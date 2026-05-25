@@ -16,7 +16,7 @@ dev:
 	concurrently \
 		--names "backend,frontend" \
 		--prefix-colors "blue,green" \
-		"cd backend && uv run uvicorn app.main:app --reload --port 8000" \
+		"cd backend && uv run uvicorn app.main:app --reload --port 8000 --app-dir src" \
 		"cd frontend && npm run dev"
 
 # Run backend tests
