@@ -1,4 +1,4 @@
-.PHONY: install dev test lint format clean
+.PHONY: install dev test lint format clean env-dev env-qa env-prod
 
 # Install all dependencies
 install:
@@ -33,6 +33,16 @@ format:
 audit:
 	cd backend && uv run pip-audit
 	cd frontend && npm audit --audit-level=high
+
+# Switch environment (copies .env.<name> → .env)
+env-dev:
+	cp .env.development .env && echo "✅ Switched to development"
+
+env-qa:
+	cp .env.qa .env && echo "✅ Switched to QA"
+
+env-prod:
+	cp .env.production .env && echo "✅ Switched to production"
 
 # Remove generated files
 clean:
