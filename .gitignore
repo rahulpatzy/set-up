@@ -222,3 +222,15 @@ __marimo__/
 
 # Generated API client (run: make generate-client)
 frontend/src/api/generated/
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Vite / build artefacts
+frontend/dist/
+frontend/.vite/
+
+# OS
+.DS_Store
+Thumbs.db
