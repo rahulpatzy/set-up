@@ -56,10 +56,13 @@ make dev          # start both servers + open browser
 | Command | What it does |
 |---|---|
 | `make dev` | Start both servers + open browser |
+| `make docker-dev` | Start full stack via Docker Compose |
 | `make test` | Run pytest |
+| `make test-frontend` | Run Vitest frontend tests |
 | `make lint` | Ruff check + ESLint |
 | `make format` | Auto-fix with ruff |
-| `make install` | `uv sync` + `npm ci` |
+| `make install` | `uv sync` + `npm ci` + pre-commit install |
+| `make generate-client` | Regenerate typed API client from OpenAPI spec |
 | `make pull` | Pull latest for current branch |
 | `make env-dev` | Switch to `.env.development` |
 | `make env-qa` | Switch to `.env.qa` |

@@ -1,4 +1,4 @@
-.PHONY: install dev test test-frontend generate-client lint format clean env-dev env-qa env-prod pull
+.PHONY: install dev docker-dev test test-frontend generate-client lint format clean env-dev env-qa env-prod pull
 
 # Pull latest for current branch
 pull:
@@ -19,6 +19,10 @@ dev:
 		--prefix-colors "blue,green" \
 		"cd backend && uv run uvicorn app.main:app --reload --port 8000 --app-dir src" \
 		"cd frontend && npm run dev"
+
+# Start full stack with Docker Compose
+docker-dev:
+	docker compose up --build
 
 # Run backend tests
 test:
