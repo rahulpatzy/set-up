@@ -1,0 +1,13 @@
+# Global ignores for all Docker builds
+.git
+.github
+**/.env
+**/.env.*
+**/node_modules
+**/__pycache__
+**/.venv
+**/dist
+**/.pytest_cache
+**/.ruff_cache
+**/*.pyc
+**/coverage
