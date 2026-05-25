@@ -46,12 +46,10 @@ The active environment is always `.env` — the app reads from there.
 
 ## Daily Workflow
 
-**Start of day — sync with latest main:**
+**Start of day:**
 ```bash
-git checkout main
-make pull                        # pull latest main
-git checkout your-feature-branch
-make sync                        # rebase your branch onto main
+git checkout main && make pull   # get latest main
+git checkout -b feat/my-thing    # new branch
 make env-dev                     # make sure dev env is active
 make dev                         # start coding
 ```
@@ -79,7 +77,6 @@ make dev
 | `make install` | Install all dependencies |
 | `make dev` | Start backend + frontend (opens browser) |
 | `make pull` | Pull latest for current branch |
-| `make sync` | Rebase current branch onto latest main |
 | `make test` | Run tests |
 | `make lint` | Check code style |
 | `make format` | Auto-fix formatting |
