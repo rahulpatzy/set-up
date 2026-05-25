@@ -1,14 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+
+async function fetchHealth(): Promise<{ status: string }> {
+  const res = await fetch('/api/health')
+  if (!res.ok) throw new Error('API unreachable')
+  return res.json()
+}
 
 export function Home() {
-  const [status, setStatus] = useState<string>('checking...')
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['health'],
+    queryFn: fetchHealth,
+  })
 
-  useEffect(() => {
-    fetch('/api/health')
-      .then((r) => r.json())
-      .then((data) => setStatus(data.status))
-      .catch(() => setStatus('unreachable'))
-  }, [])
+  const status = isLoading ? 'checking…' : isError ? 'unreachable' : data?.status ?? 'unknown'
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center">
