@@ -2,82 +2,154 @@
 
 ## Architecture
 
-This is a **FastAPI + React** full-stack template.
+Full-stack template: **FastAPI** (Python) + **React** (Vite/TypeScript/Tailwind). Supabase as the database/auth backend.
 
 ```
-backend/    FastAPI app (Python, managed with uv)
-frontend/   React + Vite + TypeScript + Tailwind
+backend/
+  src/app/main.py    FastAPI entrypoint — add routers here
+  src/app/routers/   Route modules
+  tests/             pytest tests
+  pyproject.toml     Dependencies + ruff/pytest config
+  uv.lock            Locked deps (always commit)
+
+frontend/
+  src/App.tsx        Root component
+  src/main.tsx       Entry point
+  src/index.css      Tailwind directives
+  vite.config.ts     Proxies /api/* → backend
+
+.github/workflows/
+  ci.yml             Lint + test + audit on every PR
+
+Makefile             All dev shortcuts
+.env.example         Template for env files
+CODEOWNERS           Auto-assigns @rahulpatzy as reviewer
 ```
+
+## Branch Strategy
+
+```
+feature/xxx  →  PR  →  develop  (CI must pass = QA gate)
+                            ↓ PR
+                          main   (CI must pass = prod gate)
+```
+
+- **Always create a new branch per feature/fix** — never commit directly to `develop` or `main`
+- Branch naming: `feat/`, `fix/`, `docs/`, `chore/`
+- Workflow: `git checkout main && make pull` → `git checkout -b feat/my-thing` → make changes → PR → merge
 
 ## Quick Start
 
 ```bash
-cp .env.example .env   # fill in your values
-make install           # install all deps (backend + frontend)
-make dev               # start both servers
+make install      # uv sync + npm ci
+make env-dev      # activate development environment
+make dev          # start both servers + open browser
 ```
 
 - Backend: http://localhost:8000
 - Frontend: http://localhost:5173
-- API docs: http://localhost:8000/docs
+- Swagger: http://localhost:8000/docs
 
-## Common Commands
+## Commands
 
 | Command | What it does |
 |---|---|
-| `make dev` | Start backend + frontend concurrently |
-| `make test` | Run pytest (backend) |
-| `make lint` | Ruff check + format check |
-| `make format` | Auto-fix formatting with ruff |
+| `make dev` | Start both servers + open browser |
+| `make test` | Run pytest |
+| `make lint` | Ruff check + ESLint |
+| `make format` | Auto-fix with ruff |
 | `make install` | `uv sync` + `npm ci` |
+| `make pull` | Pull latest for current branch |
+| `make env-dev` | Switch to `.env.development` |
+| `make env-qa` | Switch to `.env.qa` |
+| `make env-prod` | Switch to `.env.production` |
+
+## Environment Variables
+
+Each environment has its own git-ignored file:
+
+```
+.env.development    local dev (localhost URLs, dev Supabase project)
+.env.qa             QA config
+.env.production     prod config
+.env                active slot — app reads this, make env-* copies into it
+```
+
+Key variables:
+
+| Variable | Used by | Notes |
+|---|---|---|
+| `SUPABASE_URL` | backend + frontend | Project URL |
+| `SUPABASE_ANON_KEY` | frontend | Safe to expose |
+| `SUPABASE_SERVICE_ROLE_KEY` | backend only | Never expose to frontend |
+| `DATABASE_URL` | backend | Direct Postgres connection |
+| `SECRET_KEY` | backend | `openssl rand -hex 32` |
+| `ENVIRONMENT` | backend | `development` / `qa` / `production` |
+| `VITE_API_URL` | frontend | Backend URL (Vite exposes `VITE_` vars) |
+| `VITE_SUPABASE_URL` | frontend | Supabase URL for client |
+| `VITE_SUPABASE_ANON_KEY` | frontend | Anon key for client |
 
 ## Backend
 
 ```bash
 cd backend
-uv sync                                          # install deps
-uv run uvicorn app.main:app --reload             # start dev server
-uv run pytest                                    # run tests
-uv run ruff check . && uv run ruff format --check .   # lint
+uv sync --all-extras                              # install deps
+uv run uvicorn app.main:app --reload --port 8000  # dev server
+uv run pytest -v                                  # tests
+uv run ruff check . && uv run ruff format --check . # lint
+uv add package-name                               # add dep
 ```
 
-Source lives in `backend/src/app/`. Add new routers in `backend/src/app/routers/`.
+Add new routes in `backend/src/app/routers/`. Include in `main.py`:
+```python
+from app.routers import my_router
+app.include_router(my_router.router, prefix="/my-route", tags=["my-route"])
+```
 
 ## Frontend
 
 ```bash
 cd frontend
-npm install       # install deps
-npm run dev       # start dev server
-npm run build     # production build
-npm run lint      # eslint check
+npm run dev          # dev server (localhost:5173)
+npm run build        # production build → dist/
+npm run lint         # ESLint
+npm install pkg      # add dep
 ```
 
-Source lives in `frontend/src/`. The `VITE_API_URL` env var sets the backend URL.
-
-## Environment Variables
-
-Copy `.env.example` to `.env` and fill in values. Never commit `.env`.
-
-| Variable | Description |
-|---|---|
-| `DATABASE_URL` | Postgres connection string |
-| `SECRET_KEY` | App secret (generate with `openssl rand -hex 32`) |
-| `ENVIRONMENT` | `development` / `qa` / `production` |
-| `VITE_API_URL` | Backend URL for frontend |
-
-## Branch Strategy
-
-```
-feature/xxx  →  PR  →  main
+API calls use `/api/` prefix — Vite proxies to backend:
+```ts
+const res = await fetch('/api/health')  // → localhost:8000/health
 ```
 
-- PRs to `main` trigger CI (lint, test, audit)
-- Run locally with `make dev`
+## Supabase
 
-## Adding Features
+Each environment has its own Supabase project. Get keys from **Supabase dashboard → Project Settings → API**.
 
-- New API route: create `backend/src/app/routers/your_router.py`, include in `main.py`
-- New page: add component in `frontend/src/pages/`, add route in `App.tsx`
-- New dep (Python): `uv add package-name`
-- New dep (JS): `npm install package-name`
+```python
+# Backend
+from supabase import create_client
+import os
+
+supabase = create_client(
+    os.environ["SUPABASE_URL"],
+    os.environ["SUPABASE_SERVICE_ROLE_KEY"]  # use service role on backend
+)
+```
+
+```ts
+// Frontend
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_ANON_KEY  // use anon key on frontend
+)
+```
+
+## CI
+
+All 3 jobs must pass before any PR can merge:
+
+1. **backend-ci** — `ruff check`, `ruff format --check`, `pytest`
+2. **frontend-ci** — `eslint`, `vite build`
+3. **audit** — `pip-audit` + `npm audit`
