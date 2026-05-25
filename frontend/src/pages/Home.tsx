@@ -1,4 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 async function fetchHealth(): Promise<{ status: string }> {
   const res = await fetch('/api/health')
@@ -7,7 +9,7 @@ async function fetchHealth(): Promise<{ status: string }> {
 }
 
 export function Home() {
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['health'],
     queryFn: fetchHealth,
   })
@@ -15,15 +17,22 @@ export function Home() {
   const status = isLoading ? 'checking…' : isError ? 'unreachable' : data?.status ?? 'unknown'
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">🚀 Your App</h1>
-        <p className="text-gray-500 mb-2">Replace this with your app.</p>
-        <p className="text-sm text-gray-400">
-          API status:{' '}
-          <span className={status === 'ok' ? 'text-green-500' : 'text-red-500'}>{status}</span>
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <Card className="w-full max-w-sm text-center">
+        <CardHeader>
+          <CardTitle className="text-3xl">🚀 Your App</CardTitle>
+          <CardDescription>Replace this with your app.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-gray-400">
+            API status:{' '}
+            <span className={status === 'ok' ? 'text-green-500' : 'text-red-500'}>{status}</span>
+          </p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Refresh
+          </Button>
+        </CardContent>
+      </Card>
     </div>
   )
 }
