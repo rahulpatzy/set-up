@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import get_settings
+from app.errors import register_error_handlers
 from app.logging import configure_logging, get_logger
 
 settings = get_settings()
@@ -13,6 +14,7 @@ configure_logging(settings.environment)
 log = get_logger(__name__)
 
 app = FastAPI(title="API", version="0.1.0")
+register_error_handlers(app)
 
 app.add_middleware(
     CORSMiddleware,
